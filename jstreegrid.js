@@ -163,7 +163,7 @@
 						'.jstree-grid-cell {vertical-align: top; overflow:hidden;margin-left:0;position:relative;width: 100%;padding-left:7px;white-space: nowrap;}',
 						'.jstree-grid-cell span {margin-right:0px;margin-right:0px;*display:inline;*+display:inline;white-space: nowrap;}',
 						'.jstree-grid-separator {position:relative; height:24px; float:right;margin-left: -2px; border-width: 0 2px 0 0; *display:inline; *+display:inline; margin-right:0px;width:0px;}',
-	          '.jstree-grid-header-cell {overflow: hidden; white-space: nowrap;padding: 1px 3px 2px 5px;}',
+						'.jstree-grid-header-cell {overflow: hidden; white-space: nowrap;padding: 1px 3px 2px 5px;}',
 						'.jstree-grid-header-themeroller {border: 0; padding: 1px 3px;}',
 						'.jstree-grid-header-regular {background-color: #EBF3FD;}',
 						'.jstree-grid-resizable-separator {cursor: col-resize;}',
@@ -198,69 +198,68 @@
 		this.bind = function () {
 			parent.bind.call(this);
 			this._initialize();
-			this.element.on("redraw.jstree", $.proxy(function (e, data) {
+			this.element
+				.on("redraw.jstree", $.proxy(function (e, data) {
 					var target = this.get_node(data.nodes || "#",true);
 					this._prepare_grid(target);
 				}, this))
-			.on("move_node.jstree create_node.jstree clean_node.jstree change_node.jstree", $.proxy(function (e, data) {
-				var target = this.get_node(data || "#",true);
-				this._prepare_grid(target);
-			}, this))
-			.on("delete_node.jstree",$.proxy(function (e,data) {
-			}, this))
-			.on("close_node.jstree",$.proxy(function (e,data) {
-				this._hide_grid(data);
-			}, this))
-			.on("open_node.jstree",$.proxy(function (e,data) {
-			}, this))
-			.on("load_node.jstree",$.proxy(function (e,data) {
-			}, this))
-			.on("loaded.jstree", $.proxy(function (e) {
-				this._prepare_headers();
-				this.element.trigger("loaded_grid.jstree");
+				.on("move_node.jstree create_node.jstree clean_node.jstree change_node.jstree", $.proxy(function (e, data) {
+					var target = this.get_node(data || "#",true);
+					this._prepare_grid(target);
 				}, this))
-			.on("ready.jstree",$.proxy(function (e,data) {
-				// find the line-height of the first known node
-				var lh = this.element.find("li a:first").css("line-height");
-				$('<style type="text/css">td.jstree-grid-cell {line-height: '+lh+'}</style>').appendTo("head");
+				.on("delete_node.jstree",$.proxy(function (e,data) {
+				}, this))
+				.on("close_node.jstree",$.proxy(function (e,data) {
+					this._hide_grid(data);
+				}, this))
+				.on("open_node.jstree",$.proxy(function (e,data) {
+				}, this))
+				.on("load_node.jstree",$.proxy(function (e,data) {
+				}, this))
+				.on("loaded.jstree", $.proxy(function (e) {
+					this._prepare_headers();
+					this.element.trigger("loaded_grid.jstree");
+				}, this))
+				.on("ready.jstree",$.proxy(function (e,data) {
+					// find the line-height of the first known node
+					var lh = this.element.find("li a:first").css("line-height");
+					$('<style type="text/css">td.jstree-grid-cell {line-height: '+lh+'}</style>').appendTo("head");
 
-				// add container classes to the wrapper
-				this.gridWrapper.addClass(this.element.attr("class"));
-
-			},this))
-			.on("move_node.jstree",$.proxy(function(e,data){
-				var node = data.new_instance.element;
-				renderAWidth(node,this);
-				// check all the children, because we could drag a tree over
-				node.find("li > a").each($.proxy(function(i,elm){
-					renderAWidth($(elm),this);
+					// add container classes to the wrapper
+					this.gridWrapper.addClass(this.element.attr("class"));
+				},this))
+				.on("move_node.jstree",$.proxy(function(e,data){
+					var node = data.new_instance.element;
+					renderAWidth(node,this);
+					// check all the children, because we could drag a tree over
+					node.find("li > a").each($.proxy(function(i,elm){
+						renderAWidth($(elm),this);
+					},this));
+				},this))
+				.on("hover_node.jstree",$.proxy(function(node,selected,event){
+					var id = selected.node.id;
+					this.dataRow.find("."+GRIDCELLID_PREFIX+id+GRIDCELLID_POSTFIX).addClass("jstree-hovered");
+				},this))
+				.on("dehover_node.jstree",$.proxy(function(node,selected,event){
+					var id = selected.node.id;
+					this.dataRow.find("."+GRIDCELLID_PREFIX+id+GRIDCELLID_POSTFIX).removeClass("jstree-hovered");
+				},this))
+				.on("select_node.jstree",$.proxy(function(node,selected,event){
+					var id = selected.node.id;
+					this.dataRow.find("."+GRIDCELLID_PREFIX+id+GRIDCELLID_POSTFIX).addClass("jstree-clicked");
+					this.get_node(selected.node.id,true).children("div.jstree-grid-cell").addClass("jstree-clicked");
+				},this))
+				.on("deselect_node.jstree",$.proxy(function(node,selected,event){
+					var id = selected.node.id;
+					this.dataRow.find("."+GRIDCELLID_PREFIX+id+GRIDCELLID_POSTFIX).removeClass("jstree-clicked");
+				},this))
+				.on("deselect_all.jstree",$.proxy(function(node,selected,event){
+					// get all of the ids that were unselected
+					var ids = selected.node || [], i;
+					for (i=0;i<ids.length;i++) {
+						this.dataRow.find("."+GRIDCELLID_PREFIX+ids[i]+GRIDCELLID_POSTFIX).removeClass("jstree-clicked");
+					}
 				},this));
-
-			},this))
-			.on("hover_node.jstree",$.proxy(function(node,selected,event){
-				var id = selected.node.id;
-				this.dataRow.find("."+GRIDCELLID_PREFIX+id+GRIDCELLID_POSTFIX).addClass("jstree-hovered");
-			},this))
-			.on("dehover_node.jstree",$.proxy(function(node,selected,event){
-				var id = selected.node.id;
-				this.dataRow.find("."+GRIDCELLID_PREFIX+id+GRIDCELLID_POSTFIX).removeClass("jstree-hovered");
-			},this))
-			.on("select_node.jstree",$.proxy(function(node,selected,event){
-				var id = selected.node.id;
-				this.dataRow.find("."+GRIDCELLID_PREFIX+id+GRIDCELLID_POSTFIX).addClass("jstree-clicked");
-				this.get_node(selected.node.id,true).children("div.jstree-grid-cell").addClass("jstree-clicked");
-			},this))
-			.on("deselect_node.jstree",$.proxy(function(node,selected,event){
-				var id = selected.node.id;
-				this.dataRow.find("."+GRIDCELLID_PREFIX+id+GRIDCELLID_POSTFIX).removeClass("jstree-clicked");
-			},this))
-			.on("deselect_all.jstree",$.proxy(function(node,selected,event){
-				// get all of the ids that were unselected
-				var ids = selected.node || [], i;
-				for (i=0;i<ids.length;i++) {
-					this.dataRow.find("."+GRIDCELLID_PREFIX+ids[i]+GRIDCELLID_POSTFIX).removeClass("jstree-clicked");
-				}
-			},this));
 			if (this._gridSettings.isThemeroller) {
 				this.element
 					.on("select_node.jstree",$.proxy(function(e,data){
@@ -374,24 +373,26 @@
 
 			if (!bound && resizable) {
 				bound = true;
-				$(document).mouseup(function () {
-					var  i, ref, cols, widths, headers, w;
-					if (isClickedSep) {
-						ref = $.jstree.reference(currentTree);
-						cols = ref.settings.grid.columns;
-						headers = clickedSep.closest(".jstree-grid-wrapper").find(".jstree-grid-header");
-						widths = [];
-						if (isNaN(colNum) || colNum < 0) { ref._gridSettings.treeWidthDiff = currentTree.find("ins:eq(0)").width() + currentTree.find("a:eq(0)").width() - ref._gridSettings.columns[0].width; }
-						isClickedSep = false;
-						for (i=0;i<cols.length;i++) {
-							w = parseFloat(headers[i].style.width)+borPadWidth;
-							widths[i] = {w: w, r: i===colNum };
-							ref._gridSettings.columns[i].width = w;
-						}
+				$(document)
+					.mouseup(function () {
+						var  i, ref, cols, widths, headers, w;
+						if (isClickedSep) {
+							ref = $.jstree.reference(currentTree);
+							cols = ref.settings.grid.columns;
+							headers = clickedSep.closest(".jstree-grid-wrapper").find(".jstree-grid-header");
+							widths = [];
+							if (isNaN(colNum) || colNum < 0) { ref._gridSettings.treeWidthDiff = currentTree.find("ins:eq(0)").width() + currentTree.find("a:eq(0)").width() - ref._gridSettings.columns[0].width; }
+							isClickedSep = false;
+							for (i=0;i<cols.length;i++) {
+								w = parseFloat(headers[i].style.width)+borPadWidth;
+								widths[i] = {w: w, r: i===colNum };
+								ref._gridSettings.columns[i].width = w;
+							}
 
-						currentTree.trigger("resize_column.jstree-grid", widths);
-					}
-				}).mousemove(function (e) {
+							currentTree.trigger("resize_column.jstree-grid", widths);
+						}
+					})
+					.mousemove(function (e) {
 						if (isClickedSep) {
 							newMouseX = e.clientX;
 							var
@@ -431,7 +432,11 @@
 							}
 						}
 					});
-				header.on("selectstart", ".jstree-grid-resizable-separator", function () { return false; })
+
+				header
+					.on("selectstart", ".jstree-grid-resizable-separator", function () {
+						return false;
+					})
 					.on("mousedown", ".jstree-grid-resizable-separator", function (e) {
 						var headerWrapper;
 						clickedSep = $(this);
