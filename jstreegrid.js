@@ -310,6 +310,7 @@
 				defaultWidth = gs.columnWidth,
 				resizable = gs.resizable || false,
 				cl,
+				ccl,
 				val,
 				margin,
 				last,
@@ -339,6 +340,7 @@
 			// create the headers
 			for (i=0;i<cols.length;i++) {
 				cl = cols[i].headerClass || "";
+				ccl = cols[i].columnClass || "";
 				val = cols[i].header || "";
 				if (val) {hasHeaders = true;}
 				width = cols[i].width || defaultWidth;
@@ -348,7 +350,7 @@
 				last = $("<th></th>")
 					.css(conf)
 					.css({"margin-left": margin,"width":width})
-					.addClass((tr?"ui-widget-header ":"")+"jstree-grid-header jstree-grid-header-cell jstree-grid-header-"+classAdd+" "+cl)
+					.addClass((tr?"ui-widget-header ":"")+"jstree-grid-header jstree-grid-header-cell jstree-grid-header-"+classAdd+" "+cl+" "+ccl)
 					.text(val)
 					.appendTo(header);
 				totalWidth += last.outerWidth();
@@ -522,6 +524,7 @@
 				val,
 				cl,
 				wcl,
+				ccl,
 				a,
 				last,
 				valClass,
@@ -563,12 +566,22 @@
 				renderAWidth(a,_this);
 				renderATitle(a,t,_this);
 				last = a;
+
+				(function(){
+					dataCell = dataRow.children("td:eq(0)");
+					col = cols[0];
+					// get the columnClass
+					ccl = col.columnClass || "";
+					dataCell.addClass(ccl);
+				})();
+
 				for (i=1;i<cols.length;i++) {
 					dataCell = dataRow.children("td:eq("+i+")");
 					col = cols[i];
-					// get the cellClass and the wideCellClass
+					// get the cellClass, wideCellClass and the columnClass
 					cl = col.cellClass || "";
 					wcl = col.wideCellClass || "";
+					ccl = col.columnClass || "";
 
 
 					// get the contents of the cell - value could be a string or a function
@@ -693,10 +706,18 @@
 					span = last.children("span");
 
 					// create a span inside the div, so we can control what happens in the whole div versus inside just the text/background
-					span.addClass(cl+" "+valClass).html(content)
-					// add click handler for clicking inside a grid cell
-					.click(cellClickHandler(val,col,s));
-					last = last.css(conf).addClass("jstree-grid-cell jstree-grid-cell-"+classAdd+" "+wcl+ " " + wideValClass + (tr?" ui-state-default":"")).addClass("jstree-grid-col-"+i);
+					span
+						.addClass(cl+" "+valClass).html(content)
+						// add click handler for clicking inside a grid cell
+						.click(cellClickHandler(val,col,s));
+
+					last
+						.css(conf)
+						.addClass("jstree-grid-cell jstree-grid-cell-"+classAdd+" "+wcl+ " " + wideValClass + (tr?" ui-state-default":""))
+						.addClass("jstree-grid-col-"+i);
+
+					dataCell
+						.addClass(ccl);
 
 					if (title) {
 						span.attr("title",title);
