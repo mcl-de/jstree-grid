@@ -27,8 +27,19 @@
         factory(jQuery);
     }
 }(function ($) {
-	var renderAWidth, renderATitle, getIndent, htmlstripre, findLastClosedNode, BLANKRE = /^\s*$/g,
-	SPECIAL_TITLE = "_DATA_", LEVELINDENT = 24, bound = false, styled = false, GRIDCELLID_PREFIX = "jsgrid_",GRIDCELLID_POSTFIX = "_col";
+	var
+		renderAWidth,
+		renderATitle,
+		getIndent,
+		htmlstripre,
+		findLastClosedNode,
+		BLANKRE = /^\s*$/g,
+		SPECIAL_TITLE = "_DATA_",
+		LEVELINDENT = 24,
+		bound = false,
+		styled = false,
+		GRIDCELLID_PREFIX = "jsgrid_",
+		GRIDCELLID_POSTFIX = "_col";
 
 	/*jslint regexp:true */
 	htmlstripre = /<\/?[^>]+>/gi;
@@ -268,7 +279,11 @@
 		};
 		// tear down the tree entirely
 		this.teardown = function() {
-			var gw = this.gridWrapper, container = this.element, gridparent = gw.parent();
+			var
+				gw = this.gridWrapper,
+				container = this.element,
+				gridparent = gw.parent();
+
 			container.detach();
 			gw.remove();
 			gridparent.append(container);
@@ -286,14 +301,36 @@
 		};
 		// prepare the headers
 		this._prepare_headers = function() {
-			var header, i, gs = this._gridSettings,cols = gs.columns || [], width, defaultWidth = gs.columnWidth, resizable = gs.resizable || false,
-			cl, val, margin, last, tr = gs.isThemeroller, classAdd = (tr?"themeroller":"regular"), puller,
-			hasHeaders = false, gridparent = this.gridparent,
-			conf = gs.defaultConf, isClickedSep = false, oldMouseX = 0, newMouseX = 0,
-			currentTree = null, colNum = 0, toResize = {}, clickedSep = null, borPadWidth = 0, totalWidth = 0;
+			var
+				header,
+				i,
+				gs = this._gridSettings,
+				cols = gs.columns || [],
+				width,
+				defaultWidth = gs.columnWidth,
+				resizable = gs.resizable || false,
+				cl,
+				val,
+				margin,
+				last,
+				tr = gs.isThemeroller,
+				classAdd = (tr?"themeroller":"regular"),
+				puller,
+				hasHeaders = false,
+				gridparent = this.gridparent,
+				conf = gs.defaultConf,
+				isClickedSep = false,
+				oldMouseX = 0,
+				newMouseX = 0,
+				currentTree = null,
+				colNum = 0,
+				toResize = {},
+				clickedSep = null,
+				borPadWidth = 0,
+				totalWidth = 0;
+
 			// save the original parent so we can reparent on destroy
 			this.parent = gridparent;
-
 
 			// set up the wrapper, if not already done
 			header = this.headerRow;
@@ -308,7 +345,12 @@
 				borPadWidth = tr ? 1+6 : 2+8; // account for the borders and padding
 				width -= borPadWidth;
 				margin = i === 0 ? 3 : 0;
-				last = $("<th></th>").css(conf).css({"margin-left": margin,"width":width}).addClass((tr?"ui-widget-header ":"")+"jstree-grid-header jstree-grid-header-cell jstree-grid-header-"+classAdd+" "+cl).text(val).appendTo(header);
+				last = $("<th></th>")
+					.css(conf)
+					.css({"margin-left": margin,"width":width})
+					.addClass((tr?"ui-widget-header ":"")+"jstree-grid-header jstree-grid-header-cell jstree-grid-header-"+classAdd+" "+cl)
+					.text(val)
+					.appendTo(header);
 				totalWidth += last.outerWidth();
 				puller = $("<div class='jstree-grid-separator jstree-grid-separator-"+classAdd+(tr ? " ui-widget-header" : "")+(resizable? " jstree-grid-resizable-separator":"")+"'>&nbsp;</div>").appendTo(last);
 			}
@@ -350,9 +392,16 @@
 				}).mousemove(function (e) {
 						if (isClickedSep) {
 							newMouseX = e.clientX;
-							var diff = newMouseX - oldMouseX,
-							oldPrevHeaderInner, oldNextHeaderInner, oldPrevHeaderWidth, oldNextHeaderWidth, oldNextHeaderMarginLeft,
-							newPrevHeaderWidth, newNextHeaderWidth, newNextHeaderMarginLeft;
+							var
+								diff = newMouseX - oldMouseX,
+								oldPrevHeaderInner,
+								oldNextHeaderInner,
+								oldPrevHeaderWidth,
+								oldNextHeaderWidth,
+								oldNextHeaderMarginLeft,
+								newPrevHeaderWidth,
+								newNextHeaderWidth,
+								newNextHeaderMarginLeft;
 
 							if (diff !== 0){
 								oldPrevHeaderInner = toResize.prevHeader.width();
@@ -413,7 +462,11 @@
 			return parent.refresh.call(this);
 		};
 		this._hide_grid = function (data) {
-			var dataRow = this.dataRow, children = data.node.children_d || [], i;
+			var
+				dataRow = this.dataRow,
+				children = data.node.children_d || [],
+				i;
+
 			// go through each column, remove all children with the correct ID name
 			for (i=0;i<children.length;i++) {
 				dataRow.find("td div."+GRIDCELLID_PREFIX+children[i]+GRIDCELLID_POSTFIX).remove();
@@ -421,7 +474,12 @@
 		};
 		this.holdingCells = {};
 		this.getHoldingCells = function (obj,col,hc) {
-			var ret = $(), children = obj.children||[], child, i;
+			var
+				ret = $(),
+				children = obj.children||[],
+				child,
+				i;
+
 			// run through each child, render it, and then render its children recursively
 			for (i=0;i<children.length;i++) {
 				child = GRIDCELLID_PREFIX+children[i]+GRIDCELLID_POSTFIX+col;
@@ -434,21 +492,65 @@
 		};
 
 		this._prepare_grid = function (obj) {
-			var gs = this._gridSettings, c = gs.treeClass, _this = this, t, cols = gs.columns || [], width, tr = gs.isThemeroller,
-			classAdd = (tr?"themeroller":"regular"), img, objData = this.get_node(obj),
-			defaultWidth = gs.columnWidth, conf = gs.defaultConf, cellClickHandler = function (val,col,s) {
-				return function() {
-					$(this).trigger("select_cell.jstree-grid", [{value: val,column: col.header,node: $(this).closest("li"),sourceName: col.value,sourceType: s}]);
-				};
-			},i, val, cl, wcl, a, last, valClass, wideValClass, span, paddingleft, title, gridCellName, gridCellParentId, gridCellParent,
-			gridCellPrev, gridCellPrevId, gridCellNext, gridCellNextId, gridCellChild, gridCellChildId,
-			col, content, s, tmpWidth, dataRow = this.dataRow, dataCell, lid = objData.id,
-			peers = this.get_node(objData.parent).children,
-			// find my position in the list of peers. "peers" is the list of everyone at my level under my parent, in order
-			pos = jQuery.inArray(lid,peers),
-			hc = this.holdingCells, rendered = false;
-			// get our column definition
-			t = $(obj);
+			var
+				gs = this._gridSettings,
+				c = gs.treeClass,
+				_this = this,
+				t,
+				cols = gs.columns || [],
+				width,
+				tr = gs.isThemeroller,
+				classAdd = (tr?"themeroller":"regular"),
+				img,
+				objData = this.get_node(obj),
+				defaultWidth = gs.columnWidth,
+				conf = gs.defaultConf,
+				cellClickHandler = function (val,col,s) {
+					return function() {
+						$(this).trigger("select_cell.jstree-grid", [
+							{
+								value: val,
+								column: col.header,
+								node: $(this).closest("li"),
+								sourceName: col.value,
+								sourceType: s
+							}
+						]);
+					};
+				},
+				i,
+				val,
+				cl,
+				wcl,
+				a,
+				last,
+				valClass,
+				wideValClass,
+				span,
+				paddingleft,
+				title,
+				gridCellName,
+				gridCellParentId,
+				gridCellParent,
+				gridCellPrev,
+				gridCellPrevId,
+				gridCellNext,
+				gridCellNextId,
+				gridCellChild,
+				gridCellChildId,
+				col,
+				content,
+				s,
+				tmpWidth,
+				dataRow = this.dataRow,
+				dataCell,
+				lid = objData.id,
+				peers = this.get_node(objData.parent).children,
+				// find my position in the list of peers. "peers" is the list of everyone at my level under my parent, in order
+				pos = jQuery.inArray(lid,peers),
+				hc = this.holdingCells, rendered = false;
+				// get our column definition
+				t = $(obj);
 
 			// find the a children
 			a = t.children("a");
